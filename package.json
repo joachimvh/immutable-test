@@ -1,0 +1,10 @@
+{
+  "name": "immutable-test",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "Joachim Van Herwegen <Joachim.VanHerwegen@ugent.be>",
+  "license": "MIT",
+  "dependencies": {
+    "immutable": "^3.8.2"
+  }
+}
