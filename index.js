@@ -1,5 +1,6 @@
 
 const immutable = require('immutable');
+const Simmutable = require('seamless-immutable');
 const imMap = immutable.Map;
 const imRecord = immutable.Record;
 
@@ -19,6 +20,17 @@ function* applyBindingsImmutable (o, keyIdx) {
 
   for (let i = 0; i < bindingCount; ++i)
     yield* applyBindingsImmutable(o.set(key, i), keyIdx + 1);
+}
+
+function* applyBindingsSeamlessImmutableClone (o, keyIdx) {
+  if (keyIdx >= keys.length)
+    return yield o;
+
+  let key = keys[keyIdx];
+
+  for (let i = 0; i < bindingCount; ++i) {
+    yield* applyBindingsSeamlessImmutableClone(o.set(key, i), keyIdx + 1);
+  }
 }
 
 function* applyBindingsClone (o, keyIdx) {
@@ -50,6 +62,7 @@ function* applyBindingsMap (o, keyIdx) {
 let keys = [ '?x', '?y', '?z', '?v', '?w' ];
 let BindingRecord = imRecord({'?x': null, '?y': null, '?z': null, '?v': null, '?w': null});
 let bindingCount = 13;
+let SimmutableObject = () => Simmutable({'?x': null, '?y': null, '?z': null, '?v': null, '?w': null});
 
 let start;
 for (let i = 0; i < 15; ++i) {
@@ -65,6 +78,13 @@ for (let i = 0; i < 15; ++i) {
   for (let binding of applyBindingsImmutable(new BindingRecord(), 0)) { }
 }
 console.log(`Immutable Record: ${time(start)}ms`);
+
+for (let i = 0; i < 15; ++i) {
+  if (i === 5)
+    start = time();
+  for (let binding of applyBindingsSeamlessImmutableClone(SimmutableObject(), 0)) { }
+}
+console.log(`Seamless Immutable Object: ${time(start)}ms`);
 
 for (let i = 0; i < 15; ++i) {
   if (i === 5)
