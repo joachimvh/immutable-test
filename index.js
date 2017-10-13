@@ -22,17 +22,6 @@ function* applyBindingsImmutable (o, keyIdx) {
     yield* applyBindingsImmutable(o.set(key, i), keyIdx + 1);
 }
 
-function* applyBindingsSeamlessImmutableClone (o, keyIdx) {
-  if (keyIdx >= keys.length)
-    return yield o;
-
-  let key = keys[keyIdx];
-
-  for (let i = 0; i < bindingCount; ++i) {
-    yield* applyBindingsSeamlessImmutableClone(o.set(key, i), keyIdx + 1);
-  }
-}
-
 function* applyBindingsClone (o, keyIdx) {
   if (keyIdx >= keys.length)
     return yield o;
@@ -59,43 +48,27 @@ function* applyBindingsMap (o, keyIdx) {
   }
 }
 
-let keys = [ '?x', '?y', '?z', '?v', '?w' ];
-let BindingRecord = imRecord({'?x': null, '?y': null, '?z': null, '?v': null, '?w': null});
+let keys = [ 'a', 'b', 'c', 'd', 'e' ];
+let BindingRecord = imRecord({'a': null, 'b': null, 'c': null, 'd': null, 'e': null});
+let SimmutableObject = () => Simmutable({'a': null, 'b': null, 'c': null, 'd': null, 'e': null});
 let bindingCount = 13;
-let SimmutableObject = () => Simmutable({'?x': null, '?y': null, '?z': null, '?v': null, '?w': null});
+let warmup = 5;
+let runs = 15;
 
-let start;
-for (let i = 0; i < 15; ++i) {
-  if (i === 5)
-    start = time();
-  for (let binding of applyBindingsImmutable(new imMap(), 0)) { }
+function test(name, f, init) {
+  let start = null;
+  for (let i = 0; i < runs; ++i) {
+    if (i === warmup)
+      start = time();
+    for (let binding of f(init(), 0)) { }
+  }
+  console.log(`${name}: ${time(start)}ms`);
 }
-console.log(`Immutable Map: ${time(start)}ms`);
 
-for (let i = 0; i < 15; ++i) {
-  if (i === 5)
-    start = time();
-  for (let binding of applyBindingsImmutable(new BindingRecord(), 0)) { }
-}
-console.log(`Immutable Record: ${time(start)}ms`);
+test('Immutable Map', applyBindingsImmutable, () => new imMap());
+test('Immutable Record', applyBindingsImmutable, () => new BindingRecord());
+test('Simmutable Object', applyBindingsImmutable, () => SimmutableObject());
+test('Clone Object', applyBindingsClone, () => { return {} });
+test('Native Map', applyBindingsMap, () => new Map());
 
-for (let i = 0; i < 15; ++i) {
-  if (i === 5)
-    start = time();
-  for (let binding of applyBindingsSeamlessImmutableClone(SimmutableObject(), 0)) { }
-}
-console.log(`Seamless Immutable Object: ${time(start)}ms`);
-
-for (let i = 0; i < 15; ++i) {
-  if (i === 5)
-    start = time();
-  for (let binding of applyBindingsClone({}, 0)) { }
-}
-console.log(`Clone Object: ${time(start)}ms`);
-
-for (let i = 0; i < 15; ++i) {
-  if (i === 5)
-    start = time();
-  for (let binding of applyBindingsMap(new Map(), 0)) { }
-}
-console.log(`Native Map: ${time(start)}ms`);
+for (let binding of applyBindingsMap(new Map(), 0)) { }
