@@ -5,6 +5,7 @@
   "author": "Joachim Van Herwegen <Joachim.VanHerwegen@ugent.be>",
   "license": "MIT",
   "dependencies": {
-    "immutable": "^3.8.2"
+    "immutable": "^3.8.2",
+    "seamless-immutable": "^7.1.2"
   }
 }
